@@ -10,12 +10,12 @@ from app.schemas.schemas import Token
 router = APIRouter(prefix="/auth", tags=["Безопасность"])
 
 @router.post("/register")
-def register(username: str, password: str, session = Depends(get_session)):
+def register(username: str, password: str, email: str, session = Depends(get_session)):
     """Function check register"""
     user_exists = session.exec(select(User).where(User.username == username)).first()
     if user_exists:
         raise HTTPException(status_code=400, detail="Пользователь уже существует")
-    user = User(username=username, hashed_password=hash_password(password))
+    user = User(username=username, hashed_password=hash_password(password), email=email)
     session.add(user)
     session.commit()
     return{"message":"Пользователь зарегистрирован"}

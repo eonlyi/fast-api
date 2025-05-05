@@ -1,7 +1,7 @@
 """ main.py """
 from fastapi import FastAPI
 from app.db.database import init_db
-from app.routes import auth, tasks
+from app.routes import tasks, auth
 
 app = FastAPI()
 

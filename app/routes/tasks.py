@@ -1,12 +1,12 @@
 """ tasks.py """
-from fastapi import Request,HTTPException,APIRouter,Depends
+from fastapi import Request,HTTPException,APIRouter,Depends,status
 from fastapi.responses import RedirectResponse
-from fastapi import APIRouter, status, Depends, HTTPException
-from sqlmodel import Session, select
+from sqlmodel import Session,select
 from app.db.session import get_session
-from ..schemas import task as schema_task
+from ..models import models as schema_task
 from typing import Annotated, List
 from ..api_docs import request
+from app.core.security import get_current_user
 
 router = APIRouter(prefix="/tasks", tags=["Управление задачами в БД"])
 
@@ -18,6 +18,7 @@ def create_task(task: Annotated[
                         schema_task.TaskCreate,
                         request.example_create_task
                 ],
+                user = Depends(get_current_user),
                 session: Session = Depends(get_session)):
     """
     Добавить задачу.
@@ -25,7 +26,8 @@ def create_task(task: Annotated[
     new_task = schema_task.Task(
         task_description=task.task_description,
         assignee=task.assignee,
-        due_date=task.due_date
+        due_date=task.due_date,
+        owner = user.username
     )
     session.add(new_task)
     session.commit()
